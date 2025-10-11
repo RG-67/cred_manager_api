@@ -1,7 +1,7 @@
 const express = require('express');
 const parser = require('body-parser');
 const cors = require('cors');
-const pool = require('./db');
+const supabase = require('./db');
 
 require('dotenv').config();
 
@@ -21,16 +21,25 @@ app.post(`${path}/insertUser`, async (req, res) => {
         deviceId
     } = req.body;
     try {
-        const result = await pool.query(
-            `INSERT INTO UserDetails (
-            id, userid, userphone, password, deviceid) VALUES
-            ($1, $2, $3, $4, $5) RETURNING *`, [
-            id, userId, userPhone, password, deviceId
-        ]);
-        res.status(201).json({ status: true, msg: "User insert successfully", data: result.rows[0] });
+        const { data, error } = await supabase
+            .from('userdetails')
+            .insert([
+                {
+                    id: id,
+                    userid: userId,
+                    userphone: userPhone,
+                    password: password,
+                    deviceid: deviceId
+                }
+            ]).select();
+        if (error) {
+            console.log("Supabase insert error: ", error);
+            return res.status(500).json({ status: false, msg: 'Failed to insert data', data: [] });
+        }
+        res.status(201).json({ status: true, msg: "User insert successfully", data: data[0] });
     } catch (err) {
-        console.log("Error in inserting user: ", err);
-        res.status(500).json({ status: false, msg: "Failed to insert data", data: [] });
+        console.log("Unexpected error: ", err);
+        res.status(500).json({ status: false, msg: "Server error", data: [] });
     }
 });
 
