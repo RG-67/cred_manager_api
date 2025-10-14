@@ -103,12 +103,9 @@ const deleteUserCred = async (req, res) => {
     try {
         const response = await supabase.from('usercred')
             .delete().eq('internal_id', internalId).eq('id', id).eq('generateduserid', generatedUserId)
-            .eq('userid', userId);
-        console.log("Response: ", response);
-        if (response.status === 204 || response.statusText === "No Content") {
-            return res.status(404).json({status: false, msg: "User cred not found"});
-        }
-        res.status(201).json({ status: true, msg: "User cred update successfully" });
+            .eq('userid', userId).select();
+        if (!response.data || response.data.length === 0) return res.status(404).json({ status: false, msg: "User cred not found" });
+        res.status(201).json({ status: true, msg: "User cred deleted successfully" });
     } catch (err) {
         console.log("Server error: ", err);
         res.status(500).json({ status: false, msg: "Server error" });
