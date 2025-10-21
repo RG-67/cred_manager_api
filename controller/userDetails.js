@@ -9,7 +9,7 @@ const getAllUser = async (req, res) => {
             console.log("Supabase get users error: ", error);
             return res.status(500).json({ status: false, msg: "Failed to get users", data: [] });
         }
-        if (!data || data.length === 0) return res.status(404).json({ status: false, msg: "Users not found", data: [] });
+        if (!data || data.length === 0) return res.status(201).json({ status: false, msg: "Users not found", data: [] });
         res.status(201).json({ status: true, msg: "Users retrieved successfully", data: data });
     } catch (err) {
         console.log("Server error: ", err);
@@ -20,7 +20,6 @@ const getAllUser = async (req, res) => {
 
 const insertUser = async (req, res) => {
     const {
-        id,
         userId,
         userPhone,
         password,
@@ -30,7 +29,6 @@ const insertUser = async (req, res) => {
         const { data, error } = await supabase.from('userdetails')
             .insert([
                 {
-                    id: id,
                     userid: userId,
                     userphone: userPhone,
                     password: password,

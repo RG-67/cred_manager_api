@@ -24,7 +24,6 @@ const getAllCred = async (req, res) => {
 
 const insertUserCred = async (req, res) => {
     const {
-        id,
         generatedUserId,
         userId,
         userPhone,
@@ -39,7 +38,6 @@ const insertUserCred = async (req, res) => {
         const { data, error } = await supabase.from('usercred')
             .insert([
                 {
-                    id: id,
                     generateduserid: generatedUserId,
                     userid: userId,
                     userphone: userPhone,
@@ -63,7 +61,7 @@ const insertUserCred = async (req, res) => {
 
 
 const updateUserCred = async (req, res) => {
-    const { internalId, id, generatedUserId, userId } = req.query;
+    const { internalId, generatedUserId, userId } = req.query;
     const {
         userPhone,
         deviceId,
@@ -81,7 +79,7 @@ const updateUserCred = async (req, res) => {
                 username: userName,
                 password: password,
                 description: description
-            }).eq('internal_id', internalId).eq('id', id).eq('generateduserid', generatedUserId)
+            }).eq('internal_id', internalId).eq('generateduserid', generatedUserId)
             .eq('userid', userId).select();
         if (error) {
             console.log("Supabase user cred update error: ", error);
@@ -99,10 +97,10 @@ const updateUserCred = async (req, res) => {
 
 
 const deleteUserCred = async (req, res) => {
-    const { internalId, id, generatedUserId, userId } = req.query;
+    const { internalId, generatedUserId, userId } = req.query;
     try {
         const response = await supabase.from('usercred')
-            .delete().eq('internal_id', internalId).eq('id', id).eq('generateduserid', generatedUserId)
+            .delete().eq('internal_id', internalId).eq('generateduserid', generatedUserId)
             .eq('userid', userId).select();
         if (!response.data || response.data.length === 0) return res.status(404).json({ status: false, msg: "User cred not found" });
         res.status(201).json({ status: true, msg: "User cred deleted successfully" });
