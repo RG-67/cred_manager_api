@@ -9,8 +9,7 @@ const getAllUser = async (req, res) => {
             console.log("Supabase get users error: ", error);
             return res.status(500).json({ status: false, msg: "Failed to get users", data: [] });
         }
-        if (!data || data.length === 0) return res.status(201).json({ status: false, msg: "Users not found", data: [] });
-        res.status(201).json({ status: true, msg: "Users retrieved successfully", data: data });
+        res.status(200).json({ status: true, msg: "Users retrieved successfully", data: data });
     } catch (err) {
         console.log("Server error: ", err);
         res.status(500).json({ status: false, msg: "Server error", data: [] });
@@ -57,7 +56,7 @@ const getSingleUser = async (req, res) => {
             return res.status(500).json({ status: false, msg: "Failed to get user", data: {} });
         }
         if (!data || data.length === 0) return res.status(404).json({ status: false, msg: "User not found", data: {} });
-        res.status(201).json({ status: true, msg: "User retrieved successfully", data: data[0] });
+        res.status(200).json({ status: true, msg: "User retrieved successfully", data: data[0] });
     } catch (err) {
         console.log("Server error: ", err);
         return res.status(500).json({ status: false, msg: "Server error", data: {} });
