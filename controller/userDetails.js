@@ -67,6 +67,7 @@ const getSingleUser = async (req, res) => {
 const updateUser = async (req, res) => {
     const {
         internalId,
+        userOldPhone,
         userPhone,
         password
     } = req.body;
@@ -76,15 +77,26 @@ const updateUser = async (req, res) => {
                 userphone: userPhone,
                 password: password
             }).eq('internal_id', internalId).select();
-        if (error) {
+
+        const { data: credData, error: credError } = await supabase.from('usercred')
+            .update({
+                userphone: userPhone
+            }).eq('userphone', userOldPhone).select();
+
+        if (error || credError) {
             console.log("Supabase update user error: ", error);
             return res.status(500).json({ status: false, msg: "Falied to update user", data: {} });
         }
-        if (!data || data.length === 0) return res.status(404).json({ status: false, msg: "User not found", data: {} });
+        if (!data || data.length === 0 || !credData || credData.length === 0) {
+            console.log("UserData: ", data);
+            console.log("CredData: ", credData);
+            return res.status(404).json({ status: false, msg: "User not found", data: {} });
+        }
+
         res.status(201).json({ status: true, msg: "User updated successfully", data: data[0] });
     } catch (err) {
         console.log("Server error: ", err);
-        res.status(500).json({ status: 500, msg: "Server error", data: {} });
+        res.status(500).json({ status: false, msg: "Server error", data: {} });
     }
 }
 

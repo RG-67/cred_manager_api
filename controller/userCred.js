@@ -30,7 +30,9 @@ const insertUserCred = async (req, res) => {
         title,
         userName,
         password,
-        description
+        description,
+        created_at,
+        updated_at
     } = req.body;
 
     try {
@@ -45,7 +47,9 @@ const insertUserCred = async (req, res) => {
                     title: title,
                     username: userName,
                     password: password,
-                    description: description
+                    description: description,
+                    created_at: created_at,
+                    updated_at: updated_at
                 }
             ]).select();
         if (error) {
@@ -61,14 +65,15 @@ const insertUserCred = async (req, res) => {
 
 
 const updateUserCred = async (req, res) => {
-    const { internalId, generatedUserId, userId, localCredId } = req.query;
+    const { generatedUserId, userId, localCredId, created_at } = req.query;
     const {
         userPhone,
         deviceId,
         title,
         userName,
         password,
-        description
+        description,
+        updated_at
     } = req.body;
     try {
         const { data, error } = await supabase.from('usercred')
@@ -78,8 +83,9 @@ const updateUserCred = async (req, res) => {
                 title: title,
                 username: userName,
                 password: password,
-                description: description
-            }).eq('internal_id', internalId).eq('generateduserid', generatedUserId)
+                description: description,
+                updated_at: updated_at
+            }).eq('created_at', created_at).eq('generateduserid', generatedUserId)
             .eq('userid', userId).eq('local_cred_id', localCredId).select();
         if (error) {
             console.log("Supabase user cred update error: ", error);
@@ -97,11 +103,12 @@ const updateUserCred = async (req, res) => {
 
 
 const deleteUserCred = async (req, res) => {
-    const { internalId, generatedUserId, userId, localCredId } = req.query;
+    const { generatedUserId, userId, localCredId, createdAt, updatedAt } = req.query;
     try {
         const response = await supabase.from('usercred')
-            .delete().eq('internal_id', internalId).eq('generateduserid', generatedUserId)
-            .eq('userid', userId).eq('local_cred_id', localCredId).select();
+            .delete().eq('generateduserid', generatedUserId)
+            .eq('userid', userId).eq('local_cred_id', localCredId).eq('created_at', createdAt)
+            .eq('updated_at', updatedAt).select();
         if (!response.data || response.data.length === 0) return res.status(404).json({ status: false, msg: "User cred not found" });
         res.status(201).json({ status: true, msg: "User cred deleted successfully" });
     } catch (err) {
