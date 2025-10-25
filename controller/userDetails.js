@@ -101,5 +101,25 @@ const updateUser = async (req, res) => {
 }
 
 
+const verifyByPhone = async (req, res) => {
+    try {
+        const { userPhone } = req.query;
+        const { data, error } = await supabase.from('userdetails')
+            .select().eq('userphone', userPhone);
+        if (error) {
+            console.log("Supabase verifyUserByPhone error: ", error);
+            return res.status(500).json({ status: false, msg: "Failed to get data", data: {} });
+        }
+        if (!data || data.length === 0) {
+            return res.status(404).json({ status: false, msg: "Phone number not found", data: {} });
+        }
+        const otp = Math.floor(1000 + Math.random() * 9000);
+        res.status(200).json({ status: true, msg: "OTP verify successfully", data: { OTP: otp } });
+    } catch (error) {
+        console.log("TryCatchErr: ", error);
+        res.status(500).json({ status: false, msg: "Server error", data: {} });
+    }
+}
 
-module.exports = { getAllUser, insertUser, getSingleUser, updateUser };
+
+module.exports = { getAllUser, insertUser, getSingleUser, updateUser, verifyByPhone };
