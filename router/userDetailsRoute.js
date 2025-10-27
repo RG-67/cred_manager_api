@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getAllUser, insertUser, getSingleUser, updateUser, verifyByPhone } = require('../controller/userDetails');
+const { getAllUser, insertUser, getSingleUser, updateUser, sendOtp, verifyOtp } = require('../controller/userDetails');
 
 
-router.get('/getAllUser', getAllUser).get('/getUserByPhone', getSingleUser);
+router.get('/getAllUser', getAllUser).get('/getUserByPhone', getSingleUser).get('/sendOtp', sendOtp).get('/verifyOtp', verifyOtp);
 router.post('/insertUser', insertUser);
 router.put('/updateUser', updateUser);
 

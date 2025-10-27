@@ -1,5 +1,19 @@
+const nodemailer = require('nodemailer');
 const supabase = require('../db');
 
+
+let otpStore = {};
+
+require('dotenv').config();
+
+
+const transPorter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD
+    }
+});
 
 const getAllUser = async (req, res) => {
     try {
@@ -101,4 +115,34 @@ const updateUser = async (req, res) => {
 }
 
 
-module.exports = { getAllUser, insertUser, getSingleUser, updateUser, verifyByPhone };
+const sendOtp = async (req, res) => {
+    const { email } = req.query;
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    otpStore[email] = otp;
+    const mailOptions = {
+        from: `Cred Manager Support ${process.env.EMAIL}`,
+        to: email,
+        subject: "Your OTP Code",
+        text: `Your OTP is ${otp}. Expires in 5 minutes.`
+    };
+    try {
+        await transPorter.sendMail(mailOptions);
+        res.status(200).json({ status: true, msg: "OTP send to your mail id" });
+    } catch (error) {
+        console.log("SendMailError: ", error);
+        res.status(500).json({ status: false, msg: "Failed to send OTP" });
+    }
+}
+
+const verifyOtp = async (req, res) => {
+    const { email, otp } = req.query;
+    if (otpStore[email] && otpStore[email] == otp) {
+        delete otpStore[email];
+        res.status(200).json({ status: true, msg: "OTP verification successfull" });
+    } else {
+        res.status(200).json({ status: false, msg: "Invalid or expired otp" });
+    }
+}
+
+
+module.exports = { getAllUser, insertUser, getSingleUser, updateUser, sendOtp, verifyOtp };
