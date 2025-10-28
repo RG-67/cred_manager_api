@@ -35,6 +35,7 @@ const insertUser = async (req, res) => {
     const {
         userId,
         userPhone,
+        userEmail,
         password,
         deviceId
     } = req.body;
@@ -44,6 +45,7 @@ const insertUser = async (req, res) => {
                 {
                     userid: userId,
                     userphone: userPhone,
+                    email: userEmail,
                     password: password,
                     deviceid: deviceId
                 }
@@ -61,10 +63,10 @@ const insertUser = async (req, res) => {
 
 
 const getSingleUser = async (req, res) => {
-    const { phone } = req.query;
+    const { phone, email } = req.query;
     try {
         const { data, error } = await supabase.from('userdetails')
-            .select().eq('userphone', phone);
+            .select().eq('userphone', phone).eq('email', email);
         if (error) {
             console.log("Supabase get user error: ", error);
             return res.status(500).json({ status: false, msg: "Failed to get user", data: {} });
@@ -83,12 +85,14 @@ const updateUser = async (req, res) => {
         internalId,
         userOldPhone,
         userPhone,
+        userEmail,
         password
     } = req.body;
     try {
         const { data, error } = await supabase.from('userdetails')
             .update({
                 userphone: userPhone,
+                email: userEmail,
                 password: password
             }).eq('internal_id', internalId).select();
 
