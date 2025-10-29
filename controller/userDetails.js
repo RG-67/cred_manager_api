@@ -144,7 +144,7 @@ const verifyOtp = async (req, res) => {
         delete otpStore[email];
         res.status(200).json({ status: true, msg: "OTP verification successfull" });
     } else {
-        res.status(200).json({ status: false, msg: "Invalid or expired otp" });
+        res.status(404).json({ status: false, msg: "Invalid or expired otp" });
     }
 }
 
