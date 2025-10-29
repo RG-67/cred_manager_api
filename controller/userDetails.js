@@ -131,7 +131,7 @@ const sendOtp = async (req, res) => {
     };
     try {
         await transPorter.sendMail(mailOptions);
-        res.status(200).json({ status: true, msg: "OTP send to your mail id" });
+        res.status(200).json({ status: true, msg: "OTP send to your email id" });
     } catch (error) {
         console.log("SendMailError: ", error);
         res.status(500).json({ status: false, msg: "Failed to send OTP" });
@@ -149,4 +149,23 @@ const verifyOtp = async (req, res) => {
 }
 
 
-module.exports = { getAllUser, insertUser, getSingleUser, updateUser, sendOtp, verifyOtp };
+const passwordChange = async (req, res) => {
+    const { email, phone, password } = req.query;
+    try {
+        const { data, error } = await supabase.from('userdetails')
+            .update({ 'password': password }).eq('email', email).eq('userphone', phone).select();
+        if (error) {
+            return res.status(500).json({ status: false, msg: "Failed to change password" });
+        }
+        if (!data || data.length === 0) {
+            return res.status(404).json({ status: false, msg: "User not found" });
+        }
+        res.status(200).json({ status: true, msg: "Password change successfully" });
+    } catch (error) {
+        console.error("PasswordChangeErr: ", error);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
+}
+
+
+module.exports = { getAllUser, insertUser, getSingleUser, updateUser, sendOtp, verifyOtp, passwordChange };
