@@ -1,10 +1,13 @@
 const nodemailer = require('nodemailer');
 const supabase = require('../db');
+const Sib = require('sib-api-v3-sdk');
 
 require('dotenv').config();
 
+const client = Sib.ApiClient.instance;
+client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
-const transPorter = nodemailer.createTransport({
+/* const transPorter = nodemailer.createTransport({
     host: process.env.BREVO_HOST,
     port: process.env.BREVO_PORT,
     secure: false,
@@ -12,7 +15,7 @@ const transPorter = nodemailer.createTransport({
         user: process.env.BREVO_EMAIL,
         pass: process.env.BREVO_KEY
     }
-});
+}); */
 
 
 const getAllUser = async (req, res) => {
@@ -121,14 +124,26 @@ const updateUser = async (req, res) => {
 
 const sendOtp = async (req, res) => {
     const { email, otp } = req.query;
-    const mailOptions = {
+    /* const mailOptions = {
         from: `Cred Manager Support ${process.env.EMAIL}`,
         to: email,
         subject: "Your OTP Code",
         text: `Your OTP is ${otp}. Expires in 5 minutes.`
-    };
+    }; */
     try {
-        await transPorter.sendMail(mailOptions);
+        const tranEmailApi = new Sib.TransactionalEmailsApi();
+        const sender = {
+            email: process.env.EMAIL,
+            name: "Cred Manager Support"
+        };
+        const receivers = [{ email }];
+        await tranEmailApi.sendTransacEmail({
+            sender,
+            to: receivers,
+            subject: "Your OTP Code For Password Change",
+            textContent: `Your OTP is ${otp}. Expire in 5 minutes.`
+        });
+        // await transPorter.sendMail(mailOptions);
         res.status(200).json({ status: true, msg: "OTP send to your email id" });
     } catch (error) {
         console.log("SendMailError: ", error);
